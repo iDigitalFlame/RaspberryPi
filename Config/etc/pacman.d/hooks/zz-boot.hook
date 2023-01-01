@@ -1,0 +1,26 @@
+[Trigger]
+Type        = Path
+Target      = usr/lib/modules/*/vmlinuz
+Target      = usr/lib/initcpio/*
+Operation   = Remove
+Operation   = Install
+Operation   = Upgrade
+
+[Trigger]
+Type        = Package
+Target      = linux
+Target      = linux-*
+Target      = systemd
+Target      = mkinitcpio
+Target      = mkinitcpio-git
+Target      = mkinitcpio-busybox
+Target      = raspberrypi-firmware
+Target      = raspberrypi-bootloader
+Operation   = Remove
+Operation   = Install
+Operation   = Upgrade
+
+[Action]
+When        = PostTransaction
+Exec        = /usr/bin/mount -ro remount,ro /boot
+Description = Mounting /boot as read only..

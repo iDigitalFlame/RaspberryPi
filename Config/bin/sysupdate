@@ -1,0 +1,32 @@
+#!/usr/bin/bash
+
+if ! [ "$UID" = "0" ]; then
+    echo "Only root can do this!"
+    exit 1
+fi
+
+source "/etc/sysconfig.conf" 2> /dev/null
+if [ -z "$SYSCONFIG" ]; then
+    echo "Could not find the System Configuration directory!"
+    exit 1
+fi
+if ! [ -d "$SYSCONFIG" ]; then
+    printf "System Configuration directory \"%s\" does not exist!\n" "$SYSCONFIG"
+    exit 1
+fi
+
+mount -o rw,remount /
+
+if [ "$1" == "--auto" ]; then
+    if [ "$2" == "--download" ]; then
+        pacman -Syuw --noconfirm
+        exit 0
+    fi
+    pacman -Syu --noconfirm
+else
+    pacman -Syu
+fi
+
+mount -o rw,remount /
+syslink
+mount -o ro,remount / 2> /dev/null || mount -Ro ro,remount /
