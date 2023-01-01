@@ -1,4 +1,4 @@
-# PocketBeagle Builder
+# RaspberryPi Builder
 
 This repo is dedicated to my build, install and configuration scripts for the
 [RaspberryPi](https://www.raspberrypi.org).
@@ -9,8 +9,9 @@ and configure an ArchLinux install that contains:
 - Auto DHCP for eth0
 - Read-only Root
 - BTRFS Cache partition
+- Local Console via UART
 
-The install script requires a valid ArchLinux tar blob, which one of the following
+The install script requires a valid ArchLinuxARM tar blob, which one of the following
 can be used:
 
 - [ARM7 (Pi1-Pi4/PiZero(W)/PiZero2)](http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-armv7-latest.tar.gz)
