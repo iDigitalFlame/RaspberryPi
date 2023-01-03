@@ -3,8 +3,8 @@
 This repo is dedicated to my build, install and configuration scripts for the
 [RaspberryPi](https://www.raspberrypi.org).
 
-You can use the `install.sh` (or `install-aarch64.sh` for Pi3-Pi4/PiZero2) script to install
-and configure an ArchLinux install that contains:
+You can use the `install.sh` script to install and configure an ArchLinux install
+that contains:
 
 - Auto DHCP for eth0
 - Read-only Root
@@ -68,6 +68,11 @@ python build-config.py ./Config ./config.sh
 
 This will generate the configuration script from any changes made in the `Config`
 folder. *(Requires `python3`)*
+
+## Default Login Credentials
+
+The default login credentials are `root`:`root`. *This works over SSH and local*
+*console.* *YOU SHOULD CHANGE THESE!*
 
 ## AArch64 Notes
 

@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-# Copyright 2021 - 2022 iDigitalFlame
+# Copyright 2021 - 2023 iDigitalFlame
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -185,8 +185,7 @@ printf "bash %s/bin/syslink\n" "$SYSCONFIG_DIR" >> "${ROOT}/root/init.sh"
 # Change /etc/pacman.conf for aarch64
 if [ "$IS_AARCH64" -eq 1 ]; then
     print "Fixing pacman.conf architecture for aarch64.."
-    printf "sed -ie 'g/= armv7h/= aarch64/g' %s/etc/pacman.conf\n" "$SYSCONFIG_DIR" >> "${ROOT}/root/init.sh"
-    printf 'rm -f "%s/etc/pacman.confe"\n' "$SYSCONFIG_DIR" >> "${ROOT}/root/init.sh"
+    printf "sed -i'' -e 'g/= armv7h/= aarch64/g' %s/etc/pacman.conf\n" "$SYSCONFIG_DIR" >> "${ROOT}/root/init.sh"
 fi
 
 printf 'locale-gen\n' >> "${ROOT}/root/init.sh"
@@ -305,5 +304,6 @@ umount "${ROOT}/dev"
 umount "${ROOT}/proc"
 sync
 
+printf "\033[1;32mPlease change the \033[0mroot\033[1;32m user password on first login!!\033[0m\n"
 print "Done!"
 cleanup
