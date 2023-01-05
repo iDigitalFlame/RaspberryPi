@@ -301,11 +301,6 @@ mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/conf.d" 2> /dev/null
 /usr/bin/printf 'd.so.cache" "/etc/ld.so.cache" 2> /dev/null\n\nchmod 0644 "/var/cache/ld.so.cach' >> "${ROOT}${SYSCONFIG_DIR}/etc/syscheck.d/cache.sh"
 /usr/bin/printf 'e"\nchown root:root "/var/cache/ld.so.cache"\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/syscheck.d/cache.sh"
 
-# Create file "/etc/sysctl.d/ipv6.conf"
-/usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/ipv6.conf"
-/usr/bin/printf 'net.ipv6.conf.all.disable_ipv6      = 1\nnet.ipv6.conf.usb0.disable_ipv6     = 1' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/ipv6.conf"
-/usr/bin/printf '\nnet.ipv6.conf.all.accept_redirects  = 0\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/ipv6.conf"
-
 # Create file "/etc/sysctl.d/kernel.conf"
 /usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/kernel.conf"
 /usr/bin/printf 'fs.file-max                     = 372925\nvm.swappiness                   = 10\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/kernel.conf"
@@ -343,6 +338,11 @@ mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/conf.d" 2> /dev/null
 /usr/bin/printf 't.ipv4.icmp_echo_ignore_broadcasts        = 1\nnet.ipv4.conf.default.send_redire' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/network.conf"
 /usr/bin/printf 'cts        = 0\nnet.ipv4.conf.default.accept_redirects      = 0\nnet.ipv4.icmp_i' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/network.conf"
 /usr/bin/printf 'gnore_bogus_error_responses  = 1\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/network.conf"
+
+# Create file "/etc/sysctl.d/ipv6.conf"
+/usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/ipv6.conf"
+/usr/bin/printf 'net.ipv6.conf.all.use_tempaddr      = 2\nnet.ipv6.conf.default.use_tempaddr  = 2' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/ipv6.conf"
+/usr/bin/printf '\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/ipv6.conf"
 
 # Create file "/etc/systemd/network/eth0.network"
 /usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/systemd/network/eth0.network"
@@ -433,19 +433,9 @@ mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/conf.d" 2> /dev/null
 
 # Create file "/etc/systemd/timesyncd.conf"
 /usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/systemd/timesyncd.conf"
-/usr/bin/printf '[Time]\nNTP                 = time.nist.gov host.usb\nSaveIntervalSec     = 360\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/timesyncd.conf"
-/usr/bin/printf 'RootDistanceMaxSec  = 30\nPollIntervalMinSec  = 32\nPollIntervalMaxSec  = 2048\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/timesyncd.conf"
-
-# Create file "/etc/dnsmasq.conf"
-/usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
-/usr/bin/printf 'no-hosts\nbind-dynamic\nexpand-hosts\n\nport            = 53\nuser            = ' >> "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
-/usr/bin/printf 'dnsmasq\ngroup           = dnsmasq\nlocal           = /usb/\ndomain          = u' >> "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
-/usr/bin/printf 'sb,10.1.10.1/30\naddress         = /beagle.usb/10.1.10.1\naddress         = /bea' >> "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
-/usr/bin/printf 'gle/10.1.10.1\ninterface       = usb0\ndhcp-range      = 10.1.10.2,10.1.10.2,255' >> "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
-/usr/bin/printf '.255.255.252,1m\nresolv-file     = /etc/resolv.conf\ndhcp-option     = vendor:MS' >> "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
-/usr/bin/printf 'FT,2,1i\ndhcp-option     = option:router,10.1.10.1\ndhcp-option     = option:dom' >> "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
-/usr/bin/printf 'ain-search,usb\nlisten-address  = 10.1.10.1\ndhcp-lease-max  = 1\ndhcp-leasefile' >> "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
-/usr/bin/printf '  = /dev/null\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/dnsmasq.conf"
+/usr/bin/printf '[Time]\nNTP                 = time.nist.gov time-a-g.nist.gov time-b-g.nist.gov\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/timesyncd.conf"
+/usr/bin/printf 'SaveIntervalSec     = 360\nRootDistanceMaxSec  = 30\nPollIntervalMinSec  = 32\nP' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/timesyncd.conf"
+/usr/bin/printf 'ollIntervalMaxSec  = 2048\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/timesyncd.conf"
 
 # Create file "/etc/hostname"
 /usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/hostname"
