@@ -31,11 +31,6 @@ IS_AARCH64=0
 ROOT="/tmp/$(date +%s)-root"
 SYSCONFIG_DIR="/opt/sysconfig"
 
-if basename "$0" | grep -q "arch64" || echo "$IMAGE" | grep -q "aarch64"; then
-    print "Detected AARCH64 setup!"
-    IS_AARCH64=1
-fi
-
 exec() {
     if [ $# -lt 1 ]; then
         return
@@ -129,6 +124,11 @@ cleanup() {
     exit "$1"
 }
 
+if basename "$0" | grep -q "arch64" || echo "$IMAGE" | grep -q "aarch64"; then
+    print "Detected AARCH64 setup!"
+    IS_AARCH64=1
+fi
+
 # Check env first
 checks
 
@@ -160,7 +160,7 @@ exec "btrfs subvolume create ${ROOT}/var/base"
 exec "umount ${ROOT}/var"
 exec "mount -t btrfs -o rw,noatime,nodev,noexec,nosuid,space_cache=v2,compress=zstd,ssd,discard=async,subvol=/base ${DISK}p3 ${ROOT}/var"
 
-print "Extracting ${IMAGE} to disk..."
+print "Extracting ${IMAGE} to disk.."
 exec "bsdtar -xpf \"${IMAGE}\" -C ${ROOT}" 0 1 2>&1 | grep -vE "Cannot restore extended attributes on this file system.: Operation not supported|bsdtar: Error exit delayed from previous errors."
 sync
 
@@ -170,6 +170,8 @@ if [ "$IS_AARCH64" -eq 0 ] && file "${ROOT}/usr/bin/bash" | grep -q ": ELF 64-bi
 fi
 
 print "Preparing supplimantary files.."
+rm "${ROOT}"/etc/systemd/network/*.network
+
 # Fix DNS Config issue
 rm "${ROOT}/etc/resolv.conf"
 cp -fL "/etc/resolv.conf" "${ROOT}/etc/resolv.conf"
@@ -185,7 +187,7 @@ printf "bash %s/bin/syslink\n" "$SYSCONFIG_DIR" >> "${ROOT}/root/init.sh"
 # Change /etc/pacman.conf for aarch64
 if [ "$IS_AARCH64" -eq 1 ]; then
     print "Fixing pacman.conf architecture for aarch64.."
-    printf "sed -i'' -e 'g/= armv7h/= aarch64/g' %s/etc/pacman.conf\n" "$SYSCONFIG_DIR" >> "${ROOT}/root/init.sh"
+    printf "sed -i'' -e 's/= armv7h/= aarch64/g' %s/etc/pacman.conf\n" "$SYSCONFIG_DIR" >> "${ROOT}/root/init.sh"
 fi
 
 printf 'locale-gen\n' >> "${ROOT}/root/init.sh"
@@ -193,7 +195,7 @@ printf 'pacman-key --init\n' >> "${ROOT}/root/init.sh"
 printf 'pacman-key --populate archlinuxarm\n' >> "${ROOT}/root/init.sh"
 printf 'pacman -Syy --noconfirm\n' >> "${ROOT}/root/init.sh"
 printf 'pacman -Syu --noconfirm\n' >> "${ROOT}/root/init.sh"
-printf 'pacman -S rng-tools btrfs-progs pacman-contrib zstd --noconfirm\n' >> "${ROOT}/root/init.sh"
+printf 'pacman -S btrfs-progs pacman-contrib zstd --noconfirm\n' >> "${ROOT}/root/init.sh"
 printf 'mount -o rw,remount /\n' >> "${ROOT}/root/init.sh"
 printf 'systemctl mask debug-shell.service > /dev/null\n' >> "${ROOT}/root/init.sh"
 printf 'systemctl mask display-manager.service > /dev/null\n' >> "${ROOT}/root/init.sh"
@@ -218,12 +220,11 @@ printf 'systemctl enable systemd-resolved.service > /dev/null\n' >> "${ROOT}/roo
 printf 'systemctl enable systemd-networkd.service > /dev/null\n' >> "${ROOT}/root/init.sh"
 printf 'systemctl enable systemd-timesyncd.service > /dev/null\n' >> "${ROOT}/root/init.sh"
 printf 'systemctl enable fstrim.timer > /dev/null\n' >> "${ROOT}/root/init.sh"
-printf 'systemctl enable rngd.service > /dev/null\n' >> "${ROOT}/root/init.sh"
-printf 'pacman -Rsc $(pacman -Qtdq) --noconfirm\n' >> "${ROOT}/root/init.sh"
+printf 'pacman -Rsc $(pacman -Qtdq) --noconfirm 2> /dev/null\n' >> "${ROOT}/root/init.sh"
 printf 'mount -o rw,remount /\n' >> "${ROOT}/root/init.sh"
 printf 'ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N "" < /dev/null > /dev/null\n' >> "${ROOT}/root/init.sh"
 printf 'ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N "" < /dev/null > /dev/null\n' >> "${ROOT}/root/init.sh"
-printf 'ssh-keygen -A\n' >> "${ROOT}/root/init.sh"
+printf 'ssh-keygen -A > /dev/null\n' >> "${ROOT}/root/init.sh"
 printf 'chmod 400 /etc/ssh/*_key\n' >> "${ROOT}/root/init.sh"
 printf 'userdel -rf alarm 2> /dev/null\n' >> "${ROOT}/root/init.sh"
 
@@ -272,10 +273,10 @@ exec "mount -o bind /proc ${ROOT}/proc"
 
 if [ "$IS_AARCH64" -eq 1 ]; then
     exec "cp $(which qemu-aarch64-static) ${ROOT}/usr/bin/qemu-aarch64-static"
-    printf ':arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\xb7\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-aarch64-static:\n' > /proc/sys/fs/binfmt_misc/register 2> /dev/null
+    printf ':aarch64:M:18:\xB7:\xFF:/usr/bin/qemu-aarch64-static:\n' > /proc/sys/fs/binfmt_misc/register 2> /dev/null
 else
     exec "cp $(which qemu-arm-static) ${ROOT}/usr/bin/qemu-arm-static"
-    printf ':arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:\n' > /proc/sys/fs/binfmt_misc/register 2> /dev/null
+    printf ':arm:M:18:\x28:\xFF:/usr/bin/qemu-arm-static:\n' > /proc/sys/fs/binfmt_misc/register 2> /dev/null
 fi
 
 print "Running chroot init script.."
@@ -295,7 +296,7 @@ rm "${ROOT}/usr/bin/qemu-aarch64-static" 2> /dev/null
 awk '$5 > 2000' "${ROOT}/etc/ssh/moduli" > "${ROOT}/etc/ssh/moduli"
 chmod 0400 "${ROOT}/etc/ssh/moduli"
 chmod 0444 "${ROOT}/etc/resolv.conf"
-find "${ROOT}" -type f -name "*.pacnew" -delete
+find "${ROOT}" -type f -name "*.pacnew" -delete 2> /dev/null
 
 lsof -n | grep "$ROOT" | awk '{print $2}' | xargs kill -9
 sleep 5
@@ -304,6 +305,7 @@ umount "${ROOT}/dev"
 umount "${ROOT}/proc"
 sync
 
+printf '-1\n' > /proc/sys/fs/binfmt_misc/status 2> /dev/null
 printf "\033[1;32mPlease change the \033[0mroot\033[1;32m user password on first login!!\033[0m\n"
 print "Done!"
 cleanup

@@ -15,7 +15,6 @@ mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/systemd/system/ldconfig.service.d" 2> /dev
 mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/systemd/system/archlinux-keyring-wkd-sync.service.d" 2> /dev/null
 mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/systemd" 2> /dev/null
 mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc" 2> /dev/null
-mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/conf.d" 2> /dev/null
 
 # Create file "/bin/relink"
 /usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/bin/relink"
@@ -344,10 +343,10 @@ mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/conf.d" 2> /dev/null
 /usr/bin/printf 'net.ipv6.conf.all.use_tempaddr      = 2\nnet.ipv6.conf.default.use_tempaddr  = 2' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/ipv6.conf"
 /usr/bin/printf '\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysctl.d/ipv6.conf"
 
-# Create file "/etc/systemd/network/eth0.network"
-/usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/systemd/network/eth0.network"
-/usr/bin/printf '[Match]\nName        = eth0\n\n[Network]\nDHCP        = yes\n\n[DHCP]\nUseDNS   ' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/network/eth0.network"
-/usr/bin/printf '   = true\nUseDomains  = true\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/network/eth0.network"
+# Create file "/etc/systemd/network/en.network"
+/usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/systemd/network/en.network"
+/usr/bin/printf '[Match]\nName        = en*\nName        = eth*\n\n[Network]\nDHCP        = yes\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/network/en.network"
+/usr/bin/printf '\n[DHCP]\nUseDNS      = true\nUseDomains  = true\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/systemd/network/en.network"
 
 # Create file "/etc/systemd/system/ldconfig.service.d/override.conf"
 /usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/systemd/system/ldconfig.service.d/override.conf"
@@ -497,8 +496,4 @@ mkdir -p "${ROOT}${SYSCONFIG_DIR}/etc/conf.d" 2> /dev/null
 /usr/bin/printf '\x69\x20\x2D\x52\x00\x4C\x45\x53\x53\x48\x49\x53\x54\x53\x49\x5A\x45\x00\x81\x30' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysless"
 /usr/bin/printf '\x00\x4C\x45\x53\x53\x48\x49\x53\x54\x46\x49\x4C\x45\x00\x81\x2F\x64\x65\x76\x2F' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysless"
 /usr/bin/printf '\x6E\x75\x6C\x6C\x00\x78\x45\x6E\x64' >> "${ROOT}${SYSCONFIG_DIR}/etc/sysless"
-
-# Create file "/etc/conf.d/rngd"
-/usr/bin/printf "" > "${ROOT}${SYSCONFIG_DIR}/etc/conf.d/rngd"
-/usr/bin/printf 'RNGD_OPTS="-o /dev/random -r /dev/hwrng"\n' >> "${ROOT}${SYSCONFIG_DIR}/etc/conf.d/rngd"
 
