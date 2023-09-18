@@ -14,12 +14,15 @@ that contains:
 The install script requires a valid ArchLinuxARM tar blob, which one of the following
 can be used:
 
-- [ARM7 (Pi1-Pi4/PiZero(W)/PiZero2)](http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-armv7-latest.tar.gz)
+- [ARM7 (Pi2-Pi4/PiZero(W)/PiZero2)](http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-armv7-latest.tar.gz)
   - With curl: `curl -Lo ArchLinuxARM-rpi-armv7-latest.tar.gz http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-armv7-latest.tar.gz`
   - With wget: `wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-armv7-latest.tar.gz`
-- [ARM7 (Pi3-Pi4/PiZero2)](http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz)
+- [ARM8 (Pi3-Pi4/PiZero2)](http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz)
   - With curl: `curl -Lo ArchLinuxARM-rpi-aarch64-latest.tar.gz http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz`
   - With wget: `wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz`
+
+_Sadly, the Pi1[A|B]/Pi[A|B]+/PiZero[W] (which are ARMv6) aren't supported by ArchLinuxARM anymore,_
+_so this script won't work for them._
 
 ## Command Line Arguments
 
@@ -67,15 +70,27 @@ python build-config.py ./Config ./config.sh
 ```
 
 This will generate the configuration script from any changes made in the `Config`
-folder. *(Requires `python3`)*
+folder. _(Requires `python3`)_
 
 ## Default Login Credentials
 
-The default login credentials are `root`:`root`. *This works over SSH and local*
-*console.* *YOU SHOULD CHANGE THESE!*
+The default login credentials are `root`:`root`. _This works over SSH and local_
+_console._ _YOU SHOULD CHANGE THESE!_
 
 ## AArch64 Notes
 
 If you are installing for the Pi3-Pi4 or PiZero2, you may use the AArch64 install.
 This script will detect if the install is AARCH64 and will update the filesystem
 accordingly. **You are still required to used the correct tar image file**.
+
+## U-Boot Notes
+
+U-Boot should work fine for Pi3/4 out of the box. For the PiZero2, it will **not**
+workout without manual intervention. It's recommended to use the RPI bootloader instead
+unless U-Boot is needed.
+
+Using U-Boot by default can be disabled by passing the `UBOOT` environment variable
+with a value of `0`.
+
+Using `export UBOOT=0` or `sudo env UBOOT=0 bash install.sh ...` works fine to
+disable U-Boot.
