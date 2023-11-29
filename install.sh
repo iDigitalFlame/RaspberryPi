@@ -28,9 +28,14 @@ DISK="$2"
 IMAGE="$1"
 SCRIPT="$3"
 NO_UBOOT=0
+DISK_SEP=""
 IS_AARCH64=0
 ROOT="/tmp/$(date +%s)-root"
 SYSCONFIG_DIR="/opt/sysconfig"
+
+if [ $(echo "$DISK" | grep -q 'blk') ]; then
+    DISK_SEP="n"
+fi
 
 exec() {
     if [ $# -lt 1 ]; then
@@ -103,15 +108,15 @@ checks() {
         exit 1
     fi
     if ! [ -f "$(pwd)/config.sh" ]; then
-        printf "\033[1;31mPath 033[0m\"%s/config.sh\" \033[1;31mdoes not exist!\033[0m\n" "$(pwd)" 1>&2
+        printf "\033[1;31mPath \033[0m\"%s/config.sh\" \033[1;31mdoes not exist!\033[0m\n" "$(pwd)" 1>&2
         exit 1
     fi
 }
 cleanup() {
     print "Performing cleanup..."
     sync
-    [ -e "/proc/sys/fs/binfmt_misc/arm" ] && printf '-1\n' > "/proc/sys/fs/binfmt_misc/arm"
-    [ -e "/proc/sys/fs/binfmt_misc/aarch64" ] && printf '-1\n' > "/proc/sys/fs/binfmt_misc/aarch64"
+    [ -e "/proc/sys/fs/binfmt_misc/arm" ] && echo '-1' > "/proc/sys/fs/binfmt_misc/arm"
+    [ -e "/proc/sys/fs/binfmt_misc/aarch64" ] && echo '-1' > "/proc/sys/fs/binfmt_misc/aarch64"
     umount "/proc/sys/fs/binfmt_misc" 2> /dev/null
     lsof -n | grep "$ROOT" | awk '{print $2}' | xargs -I % kill -9 % 2> /dev/null
     sleep 5
@@ -152,20 +157,20 @@ printf "\033[1;32mPartitioning disk \033[0m\"${DISK}\"\033[1;32m..\033[0m\n"
 printf "o\nn\np\n1\n\n+200M\ny\nt\nc\nn\np\n2\n\n%d\n\ny\nn\np\n3\n\n\nw\n" "$((total - 16777218))" | exec "fdisk ${DISK}" 2>&1 | grep -vE 'Partition #|y: unknown command'
 
 print "Creating and formatting partitions.."
-exec "mkfs.vfat -nBOOT -I ${DISK}p1"
-exec "mkfs.ext4 -q -L root -F ${DISK}p2"
-exec "mkfs.btrfs -L cache -f ${DISK}p3"
+exec "mkfs.vfat -nBOOT -I ${DISK}${DISK_SEP}1"
+exec "mkfs.ext4 -q -L root -F ${DISK}${DISK_SEP}2"
+exec "mkfs.btrfs -L cache -f ${DISK}${DISK_SEP}3"
 
 print "Mounting partitions.."
 exec "mkdir -p ${ROOT}"
-exec "mount -t ext4 -o rw,noatime,nodev,discard ${DISK}p2 ${ROOT}"
+exec "mount -t ext4 -o rw,noatime,nodev,discard ${DISK}${DISK_SEP}2 ${ROOT}"
 exec "mkdir -p ${ROOT}/boot"
-exec "mount -t vfat -o rw,noatime,nodev,noexec,nosuid ${DISK}p1 ${ROOT}/boot"
+exec "mount -t vfat -o rw,noatime,nodev,noexec,nosuid ${DISK}${DISK_SEP}1 ${ROOT}/boot"
 exec "mkdir -p ${ROOT}/var"
-exec "mount -t btrfs -o rw,noatime,nodev,noexec,nosuid,space_cache=v2,compress=zstd,ssd,discard=async ${DISK}p3 ${ROOT}/var"
+exec "mount -t btrfs -o rw,noatime,nodev,noexec,nosuid,space_cache=v2,compress=zstd,ssd,discard=async ${DISK}${DISK_SEP}3 ${ROOT}/var"
 exec "btrfs subvolume create ${ROOT}/var/base"
 exec "umount ${ROOT}/var"
-exec "mount -t btrfs -o rw,noatime,nodev,noexec,nosuid,space_cache=v2,compress=zstd,ssd,discard=async,subvol=/base ${DISK}p3 ${ROOT}/var"
+exec "mount -t btrfs -o rw,noatime,nodev,noexec,nosuid,space_cache=v2,compress=zstd,ssd,discard=async,subvol=/base ${DISK}${DISK_SEP}3 ${ROOT}/var"
 
 printf "\033[1;32mExtracting \033[0m\"${IMAGE}\"\033[1;32m to disk..\033[0m\n"
 exec "bsdtar -xpf \"${IMAGE}\" -C ${ROOT}" 0 1 2>&1 | grep -vE "Cannot restore extended attributes on this file system.: Operation not supported|bsdtar: Error exit delayed from previous errors."
@@ -207,7 +212,7 @@ printf 'pacman-key --init\n' >> "${ROOT}/root/init.sh"
 printf 'pacman-key --populate archlinuxarm\n' >> "${ROOT}/root/init.sh"
 printf 'pacman -Syy --noconfirm\n' >> "${ROOT}/root/init.sh"
 if [ "$NO_UBOOT" -eq 1 ]; then
-    printf 'pacman -S --noconfirm --ask 4 linux-rpi raspberrypi-firmware btrfs-progs pacman-contrib zstd\n' >> "${ROOT}/root/init.sh"
+    printf 'pacman -S --noconfirm --ask 4 linux-rpi firmware-raspberrypi btrfs-progs pacman-contrib zstd\n' >> "${ROOT}/root/init.sh"
 else
     printf 'pacman -S --noconfirm btrfs-progs pacman-contrib zstd\n' >> "${ROOT}/root/init.sh"
 fi
@@ -243,6 +248,7 @@ printf 'ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N "" < /dev/null
 printf 'ssh-keygen -A > /dev/null\n' >> "${ROOT}/root/init.sh"
 printf 'chmod 0400 /etc/ssh/*_key\n' >> "${ROOT}/root/init.sh"
 printf 'userdel -rf alarm 2> /dev/null\n' >> "${ROOT}/root/init.sh"
+printf 'userdel -rf belly 2> /dev/null\n' >> "${ROOT}/root/init.sh"
 
 resolv_sum=$(md5sum "${ROOT}/etc/resolv.conf" | awk '{print $1}')
 
