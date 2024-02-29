@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-source /etc/sysconfig.conf || exit 1
+source "/etc/sysconfig.conf" || exit 1
 
 # Create file "/etc/dnsmasq.conf"
 printf 'no-poll\nno-ping\nbind-dynamic\nexpand-hosts\ndnssec-no-timecheck\n\nport            = ' >> "${SYSCONFIG}/etc/dnsmasq.conf"
@@ -56,7 +56,7 @@ printf '10.1.10.2   host.usb            host\n10.1.10.1   zero.usb            ze
 sed -i'' -e 's/ 0.0.0.0/ 10.1.10.1/g' "${SYSCONFIG}/etc/ssh/sshd_config"
 sed -i'' -e 's/time-b-g.nist.gov/host.usb/g' "${SYSCONFIG}/etc/systemd/timesyncd.conf"
 
-pacman -S dnsmasq logrotate git git-lfs --noconfirm
+pacman -S dnsmasq --noconfirm
 mount -o rw,remount /
 
 systemctl disable systemd-resolved
@@ -73,12 +73,12 @@ chmod 0444 "/etc/resolv.conf"
 mount -o rw,remount /
 mount -o rw,remount /boot
 
-mac=$(printf '%x%x:%x%x:%x%x' $((RANDOM % 10)) $((RANDOM % 10)) $((RANDOM % 10)) $((RANDOM % 10)) $((RANDOM % 10)) $((RANDOM % 10)))
+_mac=$(printf '%x%x:%x%x:%x%x' $((RANDOM % 10)) $((RANDOM % 10)) $((RANDOM % 10)) $((RANDOM % 10)) $((RANDOM % 10)) $((RANDOM % 10)))
 
 mkdir "${SYSCONFIG}/etc/modprobe.d"
-printf "options g_ether host_addr=be:ef:ed:%s dev_addr=%s\n" "$mac" "$mac" > "${SYSCONFIG}/etc/modprobe.d/gadget.conf"
+printf "options g_ether host_addr=be:ef:ed:%s dev_addr=%s\n" "$_mac" "$_mac" > "${SYSCONFIG}/etc/modprobe.d/gadget.conf"
 
 printf 'dtoverlay=dwc2\n' > "/boot/config.txt"
-sed -i'' -e "s/log_priority=2/log_priority=2 modules-load=dwc2,g_ether g_ether.host_addr=be:ef:ed:${mac} g_ether.dev_addr=${mac}/g" "/boot/cmdline.txt"
+sed -i'' -e "s/log_priority=2/log_priority=2 modules-load=dwc2,g_ether g_ether.host_addr=be:ef:ed:${_mac} g_ether.dev_addr=${_mac}/g" "/boot/cmdline.txt"
 
 syslink
