@@ -50,12 +50,13 @@ printf '\nnet.ipv6.conf.all.accept_redirects  = 0\n' >> "${SYSCONFIG}/etc/sysctl
 printf 'zero' > "${SYSCONFIG}/etc/hostname"
 
 # Update file "/etc/hosts"
+printf '::1         localhost.local     localhost\n127.0.0.1   localhost.local     localhost\n' > "${SYSCONFIG}/etc/hosts"
 printf '10.1.10.2   host.usb            host\n10.1.10.1   zero.usb            zero\n' >> "${SYSCONFIG}/etc/hosts"
 
 sed -i'' -e 's/ 0.0.0.0/ 10.1.10.1/g' "${SYSCONFIG}/etc/ssh/sshd_config"
 sed -i'' -e 's/time-b-g.nist.gov/host.usb/g' "${SYSCONFIG}/etc/systemd/timesyncd.conf"
 
-pacman -S dnsmasq --noconfirm
+pacman -S dnsmasq logrotate git git-lfs --noconfirm
 mount -o rw,remount /
 
 systemctl disable systemd-resolved

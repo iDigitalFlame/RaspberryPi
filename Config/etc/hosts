@@ -1,3 +1,4 @@
 ::1         localhost.local     localhost
 127.0.0.1   localhost.local     localhost
+
 127.0.0.1   rpi.local           rpi
