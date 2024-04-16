@@ -37,10 +37,10 @@ printf 'lways-up\n\n[Network]\nDNS                     = 10.1.10.2\nAddress     
 printf '    = 10.1.10.1/30\nIPv6AcceptRA            = no\nLinkLocalAddressing     = no\n' >> "${SYSCONFIG}/etc/systemd/network/usb0.network"
 printf '\n[Route]\nGateway                 = 10.1.10.1\n' >> "${SYSCONFIG}/etc/systemd/network/usb0.network"
 
-# Create file "/etc/syscheck.d/perms.sh"
-printf '#!/usr/bin/bash\n\nchmod -R 0550 "/etc/modprobe.d" 2> /dev/null\nchmod -R 0550 "/op' >> "${SYSCONFIG}/etc/syscheck.d/perms.sh"
-printf 't/sysconfig/etc/modprobe.d" 2> /dev/null\nfind "/etc/modprobe.d" -type f -exec ch' >> "${SYSCONFIG}/etc/syscheck.d/perms.sh"
-printf 'mod 0440 {} \\; 2> /dev/null\n' >> "${SYSCONFIG}/etc/syscheck.d/perms.sh"
+# Create file "/etc/syscheck.d/zero.sh"
+printf '#!/usr/bin/bash\n\nchmod -R 0550 "/etc/modprobe.d" 2> /dev/null\nchmod -R 0550 "/op' >> "${SYSCONFIG}/etc/syscheck.d/zero.sh"
+printf 't/sysconfig/etc/modprobe.d" 2> /dev/null\nfind "/etc/modprobe.d" -type f -exec ch' >> "${SYSCONFIG}/etc/syscheck.d/zero.sh"
+printf 'mod 0440 {} \\; 2> /dev/null\n' >> "${SYSCONFIG}/etc/syscheck.d/zero.sh"
 
 # Update file "/etc/sysctl.d/ipv6.conf"
 printf 'net.ipv6.conf.all.use_tempaddr      = 1\nnet.ipv6.conf.usb0.disable_ipv6     = 1' > "${SYSCONFIG}/etc/sysctl.d/ipv6.conf"
