@@ -95,7 +95,7 @@ setup_disk() {
     if [ $? -ne 0 ]; then
         bail 'Could not get disk \x1b[0m\x1b[1m"%s"\x1b[0m\x1b[31m sector size' "$SETUP_DRIVE"
     fi
-    printf "o\nn\np\n1\n\n+200M\ny\nt\nc\nn\np\n2\n\n%d\n\ny\nn\np\n3\n\n\nw\n" "$((_total - 16777218))" | exec "fdisk ${SETUP_DRIVE}" 2>&1 | grep -vE 'Partition #|y: unknown command' 1> /dev/null
+    printf "o\nn\np\n1\n\n+512M\ny\nt\nc\nn\np\n2\n\n%d\n\ny\nn\np\n3\n\n\nw\n" "$((_total - 16777218))" | exec "fdisk ${SETUP_DRIVE}" 2>&1 | grep -vE 'Partition #|y: unknown command' 1> /dev/null
     log "Formatting partitions.."
     exec "mkfs.vfat -nBOOT -I ${SETUP_DRIVE}${_SEPERATOR}1"
     exec "mkfs.ext4 -q -L root -F ${SETUP_DRIVE}${_SEPERATOR}2"
