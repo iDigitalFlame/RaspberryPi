@@ -94,3 +94,5 @@ with a value of `0`.
 
 Using `export UBOOT=0` or `sudo env UBOOT=0 bash install.sh ...` works fine to
 disable U-Boot.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z4121TDS)
