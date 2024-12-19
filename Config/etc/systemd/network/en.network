@@ -1,10 +1,10 @@
 [Match]
-Name        = en*
-Name        = eth*
+Name       = en*
+Name       = eth*
 
 [Network]
-DHCP        = yes
+DHCP       = yes
 
 [DHCPv4]
-UseDNS      = true
-UseDomains  = true
+UseDNS     = true
+UseDomains = true
