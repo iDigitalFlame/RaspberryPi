@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-if ! [ "$UID" = "0" ]; then
+if ! [ "$USER" = "root" ]; then
     echo "You MUST be root to do this!" 1>&2
     exit 1
 fi
@@ -351,9 +351,9 @@ setup_chroot() {
     printf 'locale-gen 1> /dev/null\n' >> "${SETUP_ROOT}/root/start.sh"
     printf 'pacman -Syu --noconfirm\n' >> "${SETUP_ROOT}/root/start.sh"
     if [ $SETUP_UBOOT -eq 0 ]; then
-        printf 'pacman -S --noconfirm --ask 4 linux-rpi firmware-raspberrypi net-tools iptables-nft btrfs-progs pacman-contrib zstd logrotate git git-lfs\n' >> "${SETUP_ROOT}/root/start.sh"
+        printf 'pacman -S --noconfirm --ask 4 linux-rpi firmware-raspberrypi net-tools iptable btrfs-progs pacman-contrib zstd logrotate git git-lfs\n' >> "${SETUP_ROOT}/root/start.sh"
     else
-        printf 'pacman -S --noconfirm --ask 4 net-tools iptables-nft btrfs-progs pacman-contrib zstd logrotate git git-lfs\n' >> "${SETUP_ROOT}/root/start.sh"
+        printf 'pacman -S --noconfirm --ask 4 net-tools iptables btrfs-progs pacman-contrib zstd logrotate git git-lfs\n' >> "${SETUP_ROOT}/root/start.sh"
     fi
     printf 'pacman -Rsc $(pacman -Qtdq) --noconfirm 2> /dev/null\n' >> "${SETUP_ROOT}/root/start.sh"
     printf 'mount -o rw,remount /\n' >> "${SETUP_ROOT}/root/start.sh"

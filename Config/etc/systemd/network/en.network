@@ -3,7 +3,7 @@ Name       = en*
 Name       = eth*
 
 [Network]
-DHCP       = yes
+DHCP       = true
 
 [DHCPv4]
 UseDNS     = true
